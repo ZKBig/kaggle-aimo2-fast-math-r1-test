@@ -13,7 +13,7 @@ from pathlib import Path
 Configs
 '''
 class CFG:
-    EXPERIMENT_NAME = 'train_qwen_14b_sft_moderate_merged_ep20'
+    EXPERIMENT_NAME = 'train_first_stage'
     MODEL_PATH = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B'
     DEBUG = False
     SEED = 2025

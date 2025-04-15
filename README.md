@@ -25,18 +25,16 @@ Training time: approx. 16 hours (8× H200 GPUs)
 
 # First stage: intensive SFT using a high-difficulty dataset
 ## Dataset
-[OpenR1 Math](https://huggingface.co/datasets/open-r1/OpenR1-Math-220k): We randomly sampled 3000 examples where the R1’s trace had more than 12800 tokens and an accuracy of over 50%, along with another 3000 examples where the accuracy ranged between 50% and 75%.
-[openr1_hard](https://huggingface.co/datasets/hoanganhpham/openr1_hard):  "~2.5k hard samples from open-r1-math-220k. Samples deemed as hard were unsolvable by r1-distill-32b after 4 tries."
-[Light-R1-SFTData](https://huggingface.co/datasets/qihoo360/Light-R1-SFTData): We used the 2nd stage data from Light-R1-SFTData.
+- [OpenR1 Math](https://huggingface.co/datasets/open-r1/OpenR1-Math-220k): We randomly sampled 3000 examples where the R1’s trace had more than 12800 tokens and an accuracy of over 50%, along with another 3000 examples where the accuracy ranged between 50% and 75%.
+- [openr1_hard](https://huggingface.co/datasets/hoanganhpham/openr1_hard):  "~2.5k hard samples from open-r1-math-220k. Samples deemed as hard were unsolvable by r1-distill-32b after 4 tries."
+- [Light-R1-SFTData](https://huggingface.co/datasets/qihoo360/Light-R1-SFTData): We used the 2nd stage data from Light-R1-SFTData.
 
 We merged all the datasets mentioned above, removed duplicates, and selected the correct generation with the shortest token length. For samples in the Light-R1 dataset where ground truth answers were not provided, we extracted and substituted the answers from the R1 traces. As a result, we constructed a **high-difficulty dataset consisting of 7900 problem - R1 trace - answer sets**.
 
-## Training
-Based on our prior experiments, we observed that the 14B models demonstrated more stable performance. Therefore, we chose DeepSeek-R1-Distill-Qwen-14B as our starting point. A full-parameter supervised fine-tuning training was conducted on a machine with 8 H200 GPUs, using the SFTTrainer from the trl library.
+[Our first stage SFT dataset]()
 
-## Evaluation
-We evaluated the model’s performance using a dataset of 40 problems, consisting of **10 reference problems and 30 from AIME 2025**.
-Initially, we generated answers using 16k tokens × 32 prompts. We then applied post-hoc filtering based on token length and the number of prompts to assess performance under various inference conditions.
+## Training
+A full-parameter supervised fine-tuning training was conducted on a machine with 8 H200 GPUs, using the SFTTrainer from the trl library.
 
 ## Results
 
@@ -56,22 +54,19 @@ To address this, our next objective was to apply reinforcement learning to encou
 
 # Second stage: GRPO for more efficient reasoning
 ## Dataset
-[Light-R1-SFTData](https://huggingface.co/datasets/qihoo360/Light-R1-SFTData): We used the 2nd stage data from Light-R1-SFTData.
+- [Light-R1-SFTData](https://huggingface.co/datasets/qihoo360/Light-R1-SFTData): We used the 2nd stage data from Light-R1-SFTData.
 
 ## Training
-We used the [faster version of trl GRPOTrainer](https://github.com/nhannguyen2709/open-r1).
+We used the [faster implementation of trl GRPOTrainer](https://github.com/nhannguyen2709/open-r1).
 
-We used the following reward function:
+Reward functions:
 1. Format reward
-In our submission, generation is stopped at the `</think>` tag to save time, therefore we designed the reward to match the pattern `r"^.*?oxed{(.*?)}.*?</think>.*?$"`.
-2. Cosine reward (correct [1.0, 0.1], incorrect [-0.1, -1.0], max_len=30000)
+In order to save output tokens, we forced the model to give an answer in the end of reasoning block before `</think>` by rewarding the pattern `r"^.*?oxed{(.*?)}.*?</think>.*?$"`.
+2. Cosine reward
 Compared to a normal accuracy-based reward, cosine reward applies a continuous penalty to longer correct reasoning traces and shorter incorrect ones.
 3. Length reward
 Length-based rewards to discourage overthinking and promote token efficiency.
 Paper: https://arxiv.org/abs/2501.12599
-
-## Evaluation
-Same as first stage.
 
 ## Results
 ![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F1973217%2Fdbd9dd1814ade77cc5c840319d36cf72%2FScreenshot%202025-04-02%20at%2016.55.07.png?generation=1743580526542546&alt=media)

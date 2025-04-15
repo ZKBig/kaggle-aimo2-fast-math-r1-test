@@ -73,64 +73,6 @@ def format_reward2(completions, **kwargs):
     return [1.0 if match else 0.0 for match in matches]
 
 
-def format_reward3(completions, answer, **kwargs):
-    rewards = []
-    for content, gt in zip(extract_contents(completions), answer):
-        is_correct = check_answer(content, str(gt))
-        match = re.match(r"^.*?oxed{(.*?)}.*?</think>.*?$", content, re.DOTALL)
-        if is_correct:
-            if match:
-                rewards.append(1.0)
-            else:
-                rewards.append(0.0)
-        else:
-            if match:
-                rewards.append(0.0)
-            else:
-                rewards.append(0.5)  # think until the end
-    return rewards
-
-
-def format_reward4(completions, answer, **kwargs):
-    rewards = []
-    for content, gt in zip(extract_contents(completions), answer):
-        is_correct = check_answer(content, str(gt))
-        match = re.match(r"^.*?oxed{(.*?)}.*?</think>.*?$", content, re.DOTALL)
-        match_giveup = re.match(r"^.*?oxed{giveup}.*?</think>.*?$", content, re.DOTALL)
-        if is_correct:
-            if match:
-                rewards.append(1.0)
-            else:
-                rewards.append(0.0)
-        else:
-            if match_giveup:
-                rewards.append(1.0)  # promote giveup
-            else:
-                rewards.append(0.0)
-    return rewards
-
-
-def format_reward_no_answer(completions, **kwargs):
-    pattern = r"^.*?</think>.*?$"
-    matches = [re.match(pattern, content, re.DOTALL) for content in extract_contents(completions)]
-    return [1.0 if match else 0.0 for match in matches]
-
-
-def format_reward_soft(completions, **kwargs):
-    rewards = []
-    for content in extract_contents(completions):
-        match_full = re.match(r"^.*?</think>.*?oxed{(.*?)}.*?$", content, re.DOTALL)
-        match_partial = re.match(r"^.*?</think>.*?$", content, re.DOTALL)  # no answer is better than wrong answer
-        if match_full:
-            rewards.append(1.0)
-            continue
-        if match_partial:
-            rewards.append(0.5)
-            continue
-        rewards.append(0.0)
-    return rewards
-
-
 def accuracy_reward(completions, answer, **kwargs):
     # contents = [extract_boxed_text(content) for content in extract_contents(completions)]
     # return [1.0 if c == str(gt) else 0.0 for c, gt in zip(contents, answer)]
@@ -329,10 +271,6 @@ REWARD_FUNCS_REGISTRY = {
     "accuracy": accuracy_reward,
     "format": format_reward,
     "format2": format_reward2,
-    "format3": format_reward3,
-    "format4": format_reward4,
-    "format_soft": format_reward_soft,
-    "format_no_answer": format_reward_no_answer,
     "format_and_accuracy": format_and_accuracy_reward,
     "reasoning_steps": reasoning_steps_reward,
     "cosine": get_cosine_scaled_reward(),

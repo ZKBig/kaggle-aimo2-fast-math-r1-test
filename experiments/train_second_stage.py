@@ -17,8 +17,8 @@ from finetune.grpo_rewards import REWARD_FUNCS_REGISTRY, get_cosine_scaled_rewar
 Configs
 '''
 class CFG:
-    EXPERIMENT_NAME = 'train_qwen_14b_grpo_lightr1_3k_full__moderate_merged_st350'
-    MODEL_PATH = 'ft_models/train_qwen_14b_sft_moderate_merged_ep20/checkpoint-350'
+    EXPERIMENT_NAME = 'train_second_stage'
+    MODEL_PATH = 'ft_models/train_first_stage/checkpoint-350'
     DEBUG = False
     SEED = 2025
     # GRPO settings
@@ -34,7 +34,7 @@ class CFG:
     GRAD_ACCUM = 8
     GRAD_CHECKPOINT = True
     NUM_TRAIN_EPOCHS = 1
-    MAX_STEPS = -1
+    MAX_STEPS = 40
     SAVE_STEPS = 5
     EVAL_STEPS = 5
     LOG_STEP = 1
@@ -84,7 +84,7 @@ training_args = GRPOConfig(
     eval_strategy="steps",
     eval_steps=CFG.EVAL_STEPS,
     per_device_eval_batch_size=CFG.BATCH_SIZE*2,
-    do_eval=True,
+    do_eval=False,
     logging_steps=CFG.LOG_STEP,
     lr_scheduler_type="cosine",
     report_to="none" if CFG.DEBUG else "wandb",
@@ -127,16 +127,11 @@ def create_prompt(sample):
 
 
 if __name__ == "__main__":
-    dataset_df = pd.read_pickle('input/light_r1_stage2_3k_extracted_answer.pkl').sample(frac=0.5, random_state=CFG.SEED)
+    dataset_df = pd.read_pickle('input/light_r1_stage2_3k_extracted_answer.pkl')
     dataset = Dataset.from_pandas(dataset_df)
-    eval_dataset = Dataset.from_pandas(pd.read_csv('input/aimo_eval_set_update.csv').astype(str))
-    eval_dataset = eval_dataset.filter(lambda x: x['competition'] in ['aimo1', '2025_AIME_Problems'])
     if "messages" in dataset.column_names:
         dataset = dataset.remove_columns("messages")
-    if "messages" in eval_dataset.column_names:
-        eval_dataset = eval_dataset.remove_columns("messages")
     dataset = dataset.map(create_prompt)
-    eval_dataset = eval_dataset.map(create_prompt)
 
     training_args.model_init_kwargs = dict(
         quantization_config=quant_config if CFG.USE_QLORA else None,
@@ -164,7 +159,6 @@ if __name__ == "__main__":
         reward_funcs=reward_funcs,
         args=training_args,
         train_dataset=dataset,
-        eval_dataset=eval_dataset,
         peft_config=peft_config if CFG.USE_PEFT else None,
     )
     trainer.train()
