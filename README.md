@@ -1,84 +1,114 @@
 
-# Kaggle AI Mathematical Olympiad - Progress Prize 2 9th Place Solution (Fast-Math-R1-14B)
-## Team members
-- Hiroshi Yoshihara: Aillis Inc., Univ. of Tokyo
-- Yuichi Inoue: Sakana AI
-- Taiki Yamaguchi: Rist Inc.
+# Kaggle AI Mathematical Olympiad - Progress Prize 2 - 9th Place Solution (Fast-Math-R1-14B)
+## Team
+- Hiroshi Yoshihara @ [Aillis Inc.](https://aillis.jp/en), [The Univ. of Tokyo](https://publichealth.f.u-tokyo.ac.jp/#page_home)
+- Yuichi Inoue @ [Sakana AI](https://sakana.ai)
+- Taiki Yamaguchi @ [Rist Inc.](https://www.rist.co.jp/en/)
 
-# Usage
-## 1. Set up environment
+# Summary
+By applying SFT and GRPO on difficult math problems, we enhanced the performance of `DeepSeek-R1-Distill-Qwen-14B` and developed `Fast-Math-R1-14B`, 
+which achieves up to 60% faster inference while maintaining accuracy.
+
+<img src="assets/pass1_aime2024.png" width="50%"><img src="assets/pass1_aime2025.png" width="50%">
+|                              |              | AIME 2024        |               | AIME 2025        |               | 
+| ---------------------------- | ------------ | ---------------- | ------------- | ---------------- | ------------- | 
+| Model                        | Token budget | Pass@1 (avg. 64) | Output tokens | Pass@1 (avg. 64) | Output tokens | 
+| DeepSeek-R1-Distill-Qwen-14B | 16384        | 63.3             | 9590          | 46.7             | 10602         | 
+|                              | 12800        | 58               | 6444          | 41.9             | 6684          | 
+|                              | 8192         | 45.6             | 4920          | 30.6             | 4611          | 
+| Light-R1-14B-DS              | 16384        | **66.8**             | 10146         | **51.3**             | 11308         | 
+|                              | 12800        | 59.2             | 6974          | 43.8             | 6869          | 
+|                              | 8192         | 42.4             | 5500          | 30.4             | 4908          | 
+| Fast-Math-R1-14B             | 16384        | 66               | **7932**          | 49.2             | **9066**          | 
+|                              | 12800        | **63**               | **5996**          | **46.1**             | **6127**          | 
+|                              | 8192         | **51.4**             | **4269**          | **37.2**             | **3905**          | 
+
+
+# Download
+- `Fast-Math-R1-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-Math-R1-14B) and [Kaggle Models](https://www.kaggle.com/models/analokamus/fast_math_r1_14b/).
+- [Our first stage SFT dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-SFT)
+- [Our second stage GRPO dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-GRPO)
+
+# Training models
+## 1. Installation
 ```bash
 poetry lock
 poetry install --no-root
 ```
 
-## 2. Run first stage training
+## 2. First stage training
 Training time: approx. 10 hours (8× H200 GPUs)
 ```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+    accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml --num_processes 8 \
+    experiments/train_first_stage.py
 ```
 
-## 3. Run second stage training
+## 3. Second stage training
 Training time: approx. 16 hours (8× H200 GPUs)
 ```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+    accelerate launch --config_file accelerate_configs/deepspeed_zero2.yaml --num_processes 8 \
+    experiments/train_second_stage.py
 ```
 
+# Inference
+## vLLM
+```python
+from vllm import LLM, SamplingParams
 
-# First stage: intensive SFT using a high-difficulty dataset
-## Dataset
+
+vllm_engine = LLM(
+    model='RabotniKuma/Fast-Math-R1-14B',
+    max_model_len=8192,
+    gpu_memory_utilization=0.9,
+    trust_remote_code=True,
+)
+sampling_params = SamplingParams(
+    temperature=1.0,
+    top_p=0.90,
+    min_p=0.05,
+    max_tokens=8192,
+    stop='</think>',  # Important early stop at </think> to save output tokens
+)
+vllm_engine.generate('1+1=', sampling_params=sampling_params)
+```
+
+# Technical details
+Detailed report is available on [Kaggle Disucussion](https://www.kaggle.com/competitions/ai-mathematical-olympiad-progress-prize-2/discussion/571252).
+
+## First stage: intensive SFT using a high-difficulty dataset
+### Dataset
 - [OpenR1 Math](https://huggingface.co/datasets/open-r1/OpenR1-Math-220k): We randomly sampled 3000 examples where the R1’s trace had more than 12800 tokens and an accuracy of over 50%, along with another 3000 examples where the accuracy ranged between 50% and 75%.
 - [openr1_hard](https://huggingface.co/datasets/hoanganhpham/openr1_hard):  "~2.5k hard samples from open-r1-math-220k. Samples deemed as hard were unsolvable by r1-distill-32b after 4 tries."
 - [Light-R1-SFTData](https://huggingface.co/datasets/qihoo360/Light-R1-SFTData): We used the 2nd stage data from Light-R1-SFTData.
 
 We merged all the datasets mentioned above, removed duplicates, and selected the correct generation with the shortest token length. For samples in the Light-R1 dataset where ground truth answers were not provided, we extracted and substituted the answers from the R1 traces. As a result, we constructed a **high-difficulty dataset consisting of 7900 problem - R1 trace - answer sets**.
 
-[Our first stage SFT dataset]()
+[Our first stage SFT dataset](RabotniKuma/Fast-Math-R1-SFT)
 
-## Training
+### Training
 A full-parameter supervised fine-tuning training was conducted on a machine with 8 H200 GPUs, using the SFTTrainer from the trl library.
 
-## Results
+## Second stage: GRPO for more efficient reasoning
+### Dataset
+- [Light-R1-SFTData](https://huggingface.co/datasets/qihoo360/Light-R1-SFTData): We extracted the answers from the 2nd stage SFT data of Light-R1.
 
-| Experiment                    | Token budget | Accuracy (majority@32) | Accuracy (pass@32) | Num of answers collected | Average generation length | Public LB (quantized model) |
-|-------------------------------|---------------------|--------------------------|---------------------|--------------------------|---------------------------|-----------|
-| DeepSeek-R1-Distill-Qwen-14B  | 16384               | 0.700                    | 0.775               | 21.775                   | 9684                      | 25        |
-| DeepSeek-R1-Distill-Qwen-14B  | 12800               | 0.675                    | 0.775               | 16.775                   | 8331                      |           |
-| DeepSeek-R1-Distill-Qwen-14B  | 9000                | 0.525                    | 0.600               | 12.500                   | 4725                      |           |
-| SFT          | 16384               | 0.750                    | 0.825               | 20.725                   | 10396                     | 23        |
-| SFT         | 12800               | 0.725                    | 0.725               | 15.700                   | 7024                      |           |
-| SFT        | 9000                | 0.550                    | 0.550               | 11.600                   | 4387                      |           |
+[Our second stage GRPO dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-GRPO)
 
-
-Our local validation scores improved remarkably after the first-stage SFT. However, we observed that the Public LB scores tended to be slightly lower.
-We believe this was **due to increased reasoning redundancy introduced by SFT, causing many examples to fail to reach a conclusion within the time limit**.
-To address this, our next objective was to apply reinforcement learning to encourage the model to reach accurate conclusions using fewer tokens, while maintaining performance.
-
-# Second stage: GRPO for more efficient reasoning
-## Dataset
-- [Light-R1-SFTData](https://huggingface.co/datasets/qihoo360/Light-R1-SFTData): We used the 2nd stage data from Light-R1-SFTData.
-
-## Training
+### Training
 We used the [faster implementation of trl GRPOTrainer](https://github.com/nhannguyen2709/open-r1).
 
 Reward functions:
 1. Format reward
-In order to save output tokens, we forced the model to give an answer in the end of reasoning block before `</think>` by rewarding the pattern `r"^.*?oxed{(.*?)}.*?</think>.*?$"`.
+
+In order to save output tokens, we forced the model to give an answer in the end of reasoning block before `</think>` by rewarding the pattern `r"^.*?oxed{(.*?)}.*?</think>.*?$"`. Generation is stopped at `</think>` during inference.
+
 2. Cosine reward
+
 Compared to a normal accuracy-based reward, cosine reward applies a continuous penalty to longer correct reasoning traces and shorter incorrect ones.
+
 3. Length reward
+
 Length-based rewards to discourage overthinking and promote token efficiency.
 Paper: https://arxiv.org/abs/2501.12599
-
-## Results
-![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F1973217%2Fdbd9dd1814ade77cc5c840319d36cf72%2FScreenshot%202025-04-02%20at%2016.55.07.png?generation=1743580526542546&alt=media)
-The reward was optimized steadily throughout training, but after step 60, catastrophic shifts occurred, causing a substantial decline in performance. We thus decided to use checkpoints from earlier steps for evaluation.
-
-| Experiment                    | Token budget | Accuracy (majority@32) | Accuracy (pass@32) | Num of answers collected | Average generation length | Public LB (quantized model) |
-|-------------------------------|---------------------|--------------------------|---------------------|--------------------------|---------------------------|-----------|
-| DeepSeek-R1-Distill-Qwen-14B  | 12800               | 0.675                    | 0.775               | 16.775                   | 8331                      | 25        |
-| DeepSeek-R1-Distill-Qwen-14B  | 9000                | 0.525                    | 0.600               | 12.5                     | 4725                      |           |
-| SFT         | 12800               | 0.725                    | 0.725               | 15.7                     | 7024                      | 23        |
-| SFT         | 9000                | 0.550                    | 0.550               | 11.6                     | 4387                      |           |
-| SFT + GRPO (best checkpoint)       | 12800               | **0.725**                | **0.775**           | **18.5**               | 6817                      | **29**    |
-| SFT + GRPO (best checkpoint)       | 9000                | **0.625**                | **0.700**           | **15.25**                | 4759                      |           |
-
-GRPO enabled us to train a model that preserved accuracy while significantly improving inference efficiency through shorter token lengths. 

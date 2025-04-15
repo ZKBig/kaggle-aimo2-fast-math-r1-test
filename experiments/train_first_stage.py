@@ -1,6 +1,6 @@
 import sys
 sys.path.append('.')
-from datasets import Dataset
+from datasets import Dataset, load_dataset
 from transformers import AutoTokenizer, BitsAndBytesConfig, set_seed
 from peft import LoraConfig
 from trl import SFTConfig, SFTTrainer, get_kbit_device_map
@@ -101,8 +101,7 @@ def create_prompt(sample):
     }
 
 
-data_df = pd.read_pickle('input/openr1_lightr1_moderate_merged_sft_filtered_2.pkl')
-dataset = Dataset.from_pandas(data_df)
+dataset = load_dataset('RabotniKuma/Fast-Math-R1-SFT')['train']
 dataset = dataset.map(create_prompt)
 
 

@@ -127,10 +127,7 @@ def create_prompt(sample):
 
 
 if __name__ == "__main__":
-    dataset_df = pd.read_pickle('input/light_r1_stage2_3k_extracted_answer.pkl')
-    dataset = Dataset.from_pandas(dataset_df)
-    if "messages" in dataset.column_names:
-        dataset = dataset.remove_columns("messages")
+    dataset = load_dataset('RabotniKuma/Fast-Math-R1-GRPO')['train']
     dataset = dataset.map(create_prompt)
 
     training_args.model_init_kwargs = dict(
