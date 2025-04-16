@@ -10,6 +10,7 @@ By applying SFT and GRPO on difficult math problems, we enhanced the performance
 which achieves up to 60% faster inference while maintaining accuracy.
 
 <img src="assets/pass1_aime2024.png" width="50%"><img src="assets/pass1_aime2025.png" width="50%">
+
 |                              |              | AIME 2024        |               | AIME 2025        |               | 
 | ---------------------------- | ------------ | ---------------- | ------------- | ---------------- | ------------- | 
 | Model                        | Token budget | Pass@1 (avg. 64) | Output tokens | Pass@1 (avg. 64) | Output tokens | 
@@ -44,6 +45,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml --num_processes 8 \
     experiments/train_first_stage.py
 ```
+<img src="assets/wandb_stage1.png" height="300px">
 
 ## 3. Second stage training
 Training time: approx. 16 hours (8× H200 GPUs)
@@ -52,6 +54,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     accelerate launch --config_file accelerate_configs/deepspeed_zero2.yaml --num_processes 8 \
     experiments/train_second_stage.py
 ```
+<img src="assets/wandb_stage2.png" height="600px">
+
 
 ## (Optional) Token scheduler training
 Training time: approx. 1 hours (8× H200 GPUs)
@@ -62,6 +66,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml --num_processes 8 \
     experiments/train_token_scheduler.py
 ```
+<img src="assets/wandb_token_scheduler.png" height="300px">
+
 
 # Inference
 ## vLLM
