@@ -26,8 +26,9 @@ which achieves up to 60% faster inference while maintaining accuracy.
 
 # Download
 - `Fast-Math-R1-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-Math-R1-14B) and [Kaggle Models](https://www.kaggle.com/models/analokamus/fast_math_r1_14b/).
-- [Our first stage SFT dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-SFT)
-- [Our second stage GRPO dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-GRPO)
+- [First stage SFT dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-SFT)
+- [Second stage GRPO dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-GRPO)
+- (Optional) [Token scheduler dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-Token-Scheduler)
 
 # Training models
 ## 1. Installation
@@ -50,6 +51,16 @@ Training time: approx. 16 hours (8× H200 GPUs)
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     accelerate launch --config_file accelerate_configs/deepspeed_zero2.yaml --num_processes 8 \
     experiments/train_second_stage.py
+```
+
+## (Optional) Token scheduler training
+Training time: approx. 1 hours (8× H200 GPUs)
+
+The token scheduler is a lightweight model that predicts the difficulty of a problem, measured by how many tokens the R1 model requires before reaching the final answer. See [Kaggle discussion](https://www.kaggle.com/competitions/ai-mathematical-olympiad-progress-prize-2/discussion/571252) for details.
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+    accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml --num_processes 8 \
+    experiments/train_token_scheduler.py
 ```
 
 # Inference
