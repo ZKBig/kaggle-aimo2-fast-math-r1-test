@@ -9,8 +9,8 @@
 By applying SFT and GRPO on difficult math problems, we enhanced the performance of `DeepSeek-R1-Distill-Qwen-14B` and developed `Fast-Math-R1-14B`, 
 which achieves up to 60% faster inference while maintaining accuracy.
 
-<img src="assets/pass1_aime_answers_only.png" height="300px">
-<img src="assets/pass1_aime_all.png" height="300px">
+<img src="assets/pass1_aime_answers_only.png" max-height="300px">
+<img src="assets/pass1_aime_all.png" max-height="300px">
 
 |                              |              | AIME 2024        |               | AIME 2025        |               | 
 | ---------------------------- | ------------ | ---------------- | ------------- | ---------------- | ------------- | 
@@ -46,7 +46,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml --num_processes 8 \
     experiments/train_first_stage.py
 ```
-<img src="assets/wandb_stage1.png" height="300px">
+<img src="assets/wandb_stage1.png" max-height="300px">
 
 ## 3. Second stage training
 Training time: approx. 10 hours (8× H200 GPUs)
@@ -55,7 +55,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     accelerate launch --config_file accelerate_configs/deepspeed_zero2.yaml --num_processes 8 \
     experiments/train_second_stage.py
 ```
-<img src="assets/wandb_stage2.png" height="600px">
+<img src="assets/wandb_stage2.png" max-height="600px">
 
 
 ## (Optional) Token scheduler training
@@ -67,7 +67,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml --num_processes 8 \
     experiments/train_token_scheduler.py
 ```
-<img src="assets/wandb_token_scheduler.png" height="300px">
+<img src="assets/wandb_token_scheduler.png" max-height="300px">
 
 
 # Inference
