@@ -7,23 +7,25 @@
 
 # Summary
 By applying SFT and GRPO on difficult math problems, we enhanced the performance of `DeepSeek-R1-Distill-Qwen-14B` and developed `Fast-Math-R1-14B`, 
-which achieves up to 60% faster inference while maintaining accuracy.
+which achieves up to 60% (on average approx. 30%) faster inference while maintaining accuracy.
 
-<img src="assets/pass1_aime_answers_only.png" max-height="300px">
 <img src="assets/pass1_aime_all.png" max-height="300px">
 
 |                              |              | AIME 2024        |               | AIME 2025        |               | 
 | ---------------------------- | ------------ | ---------------- | ------------- | ---------------- | ------------- | 
 | Model                        | Token budget | Pass@1 (avg. 64) | Output tokens | Pass@1 (avg. 64) | Output tokens | 
 | DeepSeek-R1-Distill-Qwen-14B | 16384        | 63.3             | 9590          | 46.7             | 10602         | 
-|                              | 12800        | 58               | 6444          | 41.9             | 6684          | 
-|                              | 8192         | 45.6             | 4920          | 30.6             | 4611          | 
+|                              | 12800        | 58               | 8632          | 41.9             | 9363          | 
+|                              | 8192         | 45.6             | 6638          | 30.6             | 6897          | 
 | Light-R1-14B-DS              | 16384        | **66.8**             | 10146         | **51.3**             | 11308         | 
-|                              | 12800        | 59.2             | 6974          | 43.8             | 6869          | 
-|                              | 8192         | 42.4             | 5500          | 30.4             | 4908          | 
+|                              | 12800        | 59.2             | 9110          | 43.8             | 9834          | 
+|                              | 8192         | 42.4             | 7020          | 30.4             | 7124          | 
 | Fast-Math-R1-14B             | 16384        | 66               | **7932**          | 49.2             | **9066**          | 
-|                              | 12800        | **63**               | **5996**          | **46.1**             | **6127**          | 
-|                              | 8192         | **51.4**             | **4269**          | **37.2**             | **3905**          | 
+|                              | 12800        | **63**               | **7449**          | **46.1**             | **8282**          | 
+|                              | 8192         | **51.4**             | **5963**          | **37.2**             | **6256**          | 
+| Fast-Math-R1-14B-SFT Only    | 16384        | 65.2             | 10268         | 49.7             | 11264         | 
+|                              | 12800        | 57.2             | 9180          | 42.8             | 9805          | 
+|                              | 8192         | 41.3             | 7015          | 30.1             | 7074          | 
 
 
 # Download
