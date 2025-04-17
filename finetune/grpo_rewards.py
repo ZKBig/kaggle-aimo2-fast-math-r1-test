@@ -79,27 +79,6 @@ def accuracy_reward(completions, answer, **kwargs):
     return [check_answer(content, str(gt)) for content, gt in zip(extract_contents(completions), answer)]
 
 
-def format_and_accuracy_reward(completions, answer, **kwargs):
-    rewards = []
-    for content, gt in zip(extract_contents(completions), answer):
-        is_correct = check_answer(content, str(gt))
-        match_full = re.match(r"^.*?</think>.*?oxed{(.*?)}.*?$", content, re.DOTALL)
-        match_partial = re.match(r"^.*?</think>.*?$", content, re.DOTALL)  # no answer is better than wrong answer
-        if is_correct:
-            if match_full:
-                rewards.append(1.0)
-            elif match_partial:
-                rewards.append(0.5)
-            else:
-                rewards.append(0.0)
-        else:
-            if match_full:
-                rewards.append(-0.5)
-            else:
-                rewards.append(0.0)
-    return rewards
-
-
 def reasoning_steps_reward(completions, **kwargs):
     """Reward function that checks for clear step-by-step reasoning.
     Regex pattern:
@@ -271,7 +250,6 @@ REWARD_FUNCS_REGISTRY = {
     "accuracy": accuracy_reward,
     "format": format_reward,
     "format2": format_reward2,
-    "format_and_accuracy": format_and_accuracy_reward,
     "reasoning_steps": reasoning_steps_reward,
     "cosine": get_cosine_scaled_reward(),
     "repetition_penalty": get_repetition_penalty_reward(),
