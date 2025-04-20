@@ -76,22 +76,41 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 ## vLLM
 ```python
 from vllm import LLM, SamplingParams
+from transformers import AutoTokenizer
 
 
+model_path = 'RabotniKuma/Fast-Math-R1-14B'
 vllm_engine = LLM(
-    model='RabotniKuma/Fast-Math-R1-14B',
+    model=model_path,
     max_model_len=8192,
     gpu_memory_utilization=0.9,
     trust_remote_code=True,
 )
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+
+
 sampling_params = SamplingParams(
     temperature=1.0,
     top_p=0.90,
     min_p=0.05,
     max_tokens=8192,
-    stop='</think>',  # Important early stop at </think> to save output tokens
+    stop='</think>',  # Important!: early stop at </think> to save output tokens
 )
-vllm_engine.generate('1+1=', sampling_params=sampling_params)
+messages = [
+    {
+        'role': 'user', 
+        'content': (
+            'Solve the problem, and put the answer in \boxed{{}}. '
+            'Sarah is twice as old as her youngest brother. If the difference between their ages is 15 years. How old is her youngest brother?'
+        )
+    }
+]
+messages = tokenizer.apply_chat_template(
+    conversation=messages,
+    tokenize=False,
+    add_generation_prompt=True
+)
+response = vllm_engine.generate(messages, sampling_params=sampling_params)
 ```
 
 # Technical details
