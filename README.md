@@ -9,6 +9,9 @@
 By applying SFT and GRPO on difficult math problems, we enhanced the performance of `DeepSeek-R1-Distill-Qwen-14B` and developed `Fast-Math-R1-14B`, 
 which achieves up to 60% (on average approx. 30%) faster inference while maintaining accuracy.
 
+In addition, we trained and open-sourced `Fast-OpenMath-Nemotron-14B`, an efficiency-optimized version of NVIDIA’s `OpenMath-Nemotron-14B`, following the same approach.
+
+## Performance comparison under strict token budget constraints
 <img src="assets/pass1_aime_all.png" max-height="300px">
 
 |                              |              | AIME 2024        |               | AIME 2025        |               | 
@@ -27,9 +30,26 @@ which achieves up to 60% (on average approx. 30%) faster inference while maintai
 |                              | 12800        | 57.2             | 9180          | 42.8             | 9805          | 
 |                              | 8192         | 41.3             | 7015          | 30.1             | 7074          | 
 
+## Performance comparison under loose token constraints
+<img src="assets/pass1_aime_nemotron.png" max-height="300px">
+
+|                            |              | AIME 2024        |                                 | AIME 2025        |                                 | 
+| -------------------------- | ------------ | ---------------- | ------------------------------- | ---------------- | ------------------------------- | 
+| Model                      | Token budget | Pass@1 (avg. 64) | Output tokens | Pass@1 (avg. 64) | Output tokens | 
+| OpenMath-Nemotron-14B      | 24000        | **73.3**             | 12277                           | **64.4**             | 13027                           | 
+|                            | 16384        | 66.4             | 8932                            | 53.8             | 11547                           | 
+|                            | 12800        | 57               | 7000                            | 42.3             | 9996                            | 
+|                            | 8192         | 37.4             | 4835                            | 28               | 7186                            | 
+| Fast-OpenMath-Nemotron-14B | 24000        | 71.7             | 10545                           | 60.4             | 11053                           | 
+|                            | 16384        | **68.2**             | 8270                            | **55.6**             | 10216                           | 
+|                            | 12800        | **62.3**             | 6359                            | **47.7**             | 9052                            | 
+|                            | 8192         | **47.6**             | 4299                            | **33.8**             | 6674                            | 
+
+
 
 # Download
 - `Fast-Math-R1-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-Math-R1-14B) and [Kaggle Models](https://www.kaggle.com/models/analokamus/fast_math_r1_14b/).
+- `Fast-OpenMath-Nemotron-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-OpenMath-Nemotron-14B)
 - [First stage SFT dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-SFT)
 - [Second stage GRPO dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-GRPO)
 - (Optional) [Token scheduler dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-Token-Scheduler)
@@ -80,6 +100,7 @@ from transformers import AutoTokenizer
 
 
 model_path = 'RabotniKuma/Fast-Math-R1-14B'
+# model_path = 'RabotniKuma/Fast-OpenMath-Nemotron-14B'
 vllm_engine = LLM(
     model=model_path,
     max_model_len=8192,
