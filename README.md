@@ -91,6 +91,14 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 ```
 <img src="assets/wandb_token_scheduler.png" max-height="300px">
 
+## (Optional) Fast-OpenMath-Nemotron-14B
+Training time: approx. 12 hours (8× H200 GPUs)
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+    accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml --num_processes 8 \
+    experiments/train_fast_nemotron_14b.py
+```
+
 
 # Inference
 ## vLLM
@@ -115,7 +123,7 @@ sampling_params = SamplingParams(
     top_p=0.90,
     min_p=0.05,
     max_tokens=8192,
-    stop='</think>',  # Important!: early stop at </think> to save output tokens
+    stop='</think>',  # For even faster inference, applying early stopping at the </think> tag and extracting the final boxed content is recommended.
 )
 messages = [
     {
