@@ -11,45 +11,60 @@ which achieves up to 60% (on average approx. 30%) faster inference while maintai
 
 In addition, we trained and open-sourced `Fast-OpenMath-Nemotron-14B`, an efficiency-optimized version of NVIDIA’s `OpenMath-Nemotron-14B`, following the same approach.
 
-## Performance comparison under strict token budget constraints
-<img src="assets/pass1_aime_all.png" max-height="300px">
+## Performance comparison
+<img src="assets/pass1_aime_all.png" max-height="400px">
 
-|                              |              | AIME 2024        |               | AIME 2025        |               | 
-| ---------------------------- | ------------ | ---------------- | ------------- | ---------------- | ------------- | 
-| Model                        | Token budget | Pass@1 (avg. 64) | Output tokens | Pass@1 (avg. 64) | Output tokens | 
-| DeepSeek-R1-Distill-Qwen-14B | 16384        | 63.3             | 9590          | 46.7             | 10602         | 
-|                              | 12800        | 58               | 8632          | 41.9             | 9363          | 
-|                              | 8192         | 45.6             | 6638          | 30.6             | 6897          | 
-| Light-R1-14B-DS              | 16384        | **66.8**             | 10146         | **51.3**             | 11308         | 
-|                              | 12800        | 59.2             | 9110          | 43.8             | 9834          | 
-|                              | 8192         | 42.4             | 7020          | 30.4             | 7124          | 
-| Fast-Math-R1-14B             | 16384        | 66               | **7932**          | 49.2             | **9066**          | 
-|                              | 12800        | **63**               | **7449**          | **46.1**             | **8282**          | 
-|                              | 8192         | **51.4**             | **5963**          | **37.2**             | **6256**          | 
-| Fast-Math-R1-14B-SFT Only    | 16384        | 65.2             | 10268         | 49.7             | 11264         | 
-|                              | 12800        | 57.2             | 9180          | 42.8             | 9805          | 
-|                              | 8192         | 41.3             | 7015          | 30.1             | 7074          | 
+### DS-R1-Qwen-14B vs Fast-Math-R1-14B (Ours)
+|                              |              | AIME 2024        |                    | AIME 2025        |                    | 
+| ---------------------------- | ------------ | ---------------- | ------------------ | ---------------- | ------------------ | 
+| Model                        | Token budget | Pass@1 (avg. 64) | Mean output tokens | Pass@1 (avg. 64) | Mean output tokens | 
+| DeepSeek-R1-Distill-Qwen-14B | 32000        | 66.9             | 11026              | 49.9             | 12310              | 
+|                              | 24000        | 65.7             | 10784              | 49.7             | 11978              | 
+|                              | 16000        | 61               | 9708               | 46.2             | 10567              | 
+|                              | 12000        | 53.7             | 8472               | 39.9             | 9008               | 
+|                              | 8000         | 41.8             | 6587               | 31.1             | 6788               | 
+| Fast-Math-R1-14B             | 32000        | 68               | 8217               | 49.6             | 9663               | 
+|                              | 24000        | 67.9             | 8209               | 49.6             | 9627               | 
+|                              | 16000        | 66.7             | 8017               | 48.4             | 9083               | 
+|                              | 12000        | 61.9             | 7362               | 45.2             | 8048               | 
+|                              | 8000         | 51.4             | 5939               | 36.3             | 6174               | 
 
-## Performance comparison under loose token constraints
-<img src="assets/pass1_aime_nemotron.png" max-height="300px">
+### OpenMath-Nemotron-14B vs Fast-OpenMath-Nemotron-14B (Ours)
+|                            |              | AIME 2024        |                    | AIME 2025        |                    | 
+| -------------------------- | ------------ | ---------------- | ------------------ | ---------------- | ------------------ | 
+| Model                      | Token budget | Pass@1 (avg. 64) | Mean output tokens | Pass@1 (avg. 64) | Mean output tokens | 
+| OpenMath-Nemotron-14B      | 32000        | 76.2             | 11493              | 64.5             | 13414              | 
+|                            | 24000        | 75.4             | 11417              | 63.4             | 13046              | 
+|                            | 16000        | 66               | 10399              | 54.2             | 11422              | 
+|                            | 12000        | 55               | 9053               | 40               | 9609               | 
+|                            | 8000         | 36               | 6978               | 27.2             | 7083               | 
+| Fast-OpenMath-Nemotron-14B | 32000        | 70.7             | 9603               | 61.4             | 11424              | 
+|                            | 24000        | 70.6             | 9567               | 60.9             | 11271              | 
+|                            | 16000        | 66.6             | 8954               | 55.3             | 10190              | 
+|                            | 12000        | 59.4             | 7927               | 45.6             | 8752               | 
+|                            | 8000         | 47.6             | 6282               | 33.8             | 6589               | 
 
-|                            |              | AIME 2024        |                                 | AIME 2025        |                                 | 
-| -------------------------- | ------------ | ---------------- | ------------------------------- | ---------------- | ------------------------------- | 
-| Model                      | Token budget | Pass@1 (avg. 64) | Output tokens | Pass@1 (avg. 64) | Output tokens | 
-| OpenMath-Nemotron-14B      | 24000        | **73.3**             | 12277                           | **64.4**             | 13027                           | 
-|                            | 16384        | 66.4             | 8932                            | 53.8             | 11547                           | 
-|                            | 12800        | 57               | 7000                            | 42.3             | 9996                            | 
-|                            | 8192         | 37.4             | 4835                            | 28               | 7186                            | 
-| Fast-OpenMath-Nemotron-14B | 24000        | 71.7             | 10545                           | 60.4             | 11053                           | 
-|                            | 16384        | **68.2**             | 8270                            | **55.6**             | 10216                           | 
-|                            | 12800        | **62.3**             | 6359                            | **47.7**             | 9052                            | 
-|                            | 8192         | **47.6**             | 4299                            | **33.8**             | 6674                            | 
+### Qwen3-14B vs Fast-Math-Qwen-14B
+|                     |              | AIME 2024        |                    | AIME 2025        |                    | 
+| ------------------- | ------------ | ---------------- | ------------------ | ---------------- | ------------------ | 
+| Model               | Token budget | Pass@1 (avg. 64) | Mean output tokens | Pass@1 (avg. 64) | Mean output tokens | 
+| Qwen3-14B           | 32000        | 79.3             | 13669              | 69.5             | 16481              | 
+|                     | 24000        | 75.9             | 13168              | 65.6             | 15235              | 
+|                     | 16000        | 64.5             | 11351              | 50.4             | 12522              | 
+|                     | 12000        | 49.7             | 9746               | 36.3             | 10353              | 
+|                     | 8000         | 28.4             | 7374               | 19.5             | 7485               | 
+| Fast-Math-Qwen3-14B | 32000        | 77.6             | 9740               | 66.6             | 12281              | 
+|                     | 24000        | 76.5             | 9634               | 65.3             | 11847              | 
+|                     | 16000        | 72.6             | 8793               | 60.1             | 10195              | 
+|                     | 12000        | 65.1             | 7775               | 49.4             | 8733               | 
+|                     | 8000         | 50.7             | 6260               | 36               | 6618               | 
 
 
 
 # Download
 - `Fast-Math-R1-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-Math-R1-14B) and [Kaggle Models](https://www.kaggle.com/models/analokamus/fast_math_r1_14b/).
 - `Fast-OpenMath-Nemotron-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-OpenMath-Nemotron-14B)
+- `Fast-Math-Qwen3-14B` model is available at [Huggingface](RabotniKuma/Fast-Math-Qwen3-14B)
 - [First stage SFT dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-SFT)
 - [Second stage GRPO dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-GRPO)
 - (Optional) [Token scheduler dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-Token-Scheduler)
@@ -99,6 +114,23 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     experiments/train_fast_nemotron_14b.py
 ```
 
+## (Optional) Fast-Math-Qwen3-14B
+Training time: approx. 12 hours (8× H200 GPUs)
+
+**Note:** You’ll need to update your dependencies to train any of the Qwen3 series models.
+```bash
+# Update environment
+cp dev/pyproject_qwen3.toml pyproject.toml
+poetry lock
+poetry install --no-root
+# Train
+CUDA_VISIBLE_DEVICES=0,1,2,3 \
+    accelerate launch --config_file accelerate_configs/deepspeed_zero3_cpu_offload.yaml --num_processes 4 \
+    experiments/train_fast_qwen3_14b.py &
+CUDA_VISIBLE_DEVICES=4,5,6,7 trl vllm-serve --model Qwen/Qwen3-14B --tensor_parallel_size 2 --data_parallel_size 2 &
+wait
+```
+
 
 # Inference
 ## vLLM
@@ -108,7 +140,6 @@ from transformers import AutoTokenizer
 
 
 model_path = 'RabotniKuma/Fast-Math-R1-14B'
-# model_path = 'RabotniKuma/Fast-OpenMath-Nemotron-14B'
 vllm_engine = LLM(
     model=model_path,
     max_model_len=8192,
