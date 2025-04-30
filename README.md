@@ -44,7 +44,7 @@ In addition, we trained and open-sourced `Fast-OpenMath-Nemotron-14B`, an effici
 |                            | 12000        | 59.4             | 7927               | 45.6             | 8752               | 
 |                            | 8000         | 47.6             | 6282               | 33.8             | 6589               | 
 
-### Qwen3-14B vs Fast-Math-Qwen-14B
+### Qwen3-14B vs Fast-Math-Qwen3-14B
 |                     |              | AIME 2024        |                    | AIME 2025        |                    | 
 | ------------------- | ------------ | ---------------- | ------------------ | ---------------- | ------------------ | 
 | Model               | Token budget | Pass@1 (avg. 64) | Mean output tokens | Pass@1 (avg. 64) | Mean output tokens | 
