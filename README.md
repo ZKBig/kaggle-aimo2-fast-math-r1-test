@@ -64,7 +64,7 @@ In addition, we trained and open-sourced `Fast-OpenMath-Nemotron-14B`, an effici
 # Download
 - `Fast-Math-R1-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-Math-R1-14B) and [Kaggle Models](https://www.kaggle.com/models/analokamus/fast_math_r1_14b/).
 - `Fast-OpenMath-Nemotron-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-OpenMath-Nemotron-14B)
-- `Fast-Math-Qwen3-14B` model is available at [Huggingface](RabotniKuma/Fast-Math-Qwen3-14B)
+- `Fast-Math-Qwen3-14B` model is available at [Huggingface](https://huggingface.co/RabotniKuma/Fast-Math-Qwen3-14B)
 - [First stage SFT dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-SFT)
 - [Second stage GRPO dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-GRPO)
 - (Optional) [Token scheduler dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-Token-Scheduler)
