@@ -6,6 +6,9 @@
 - Taiki Yamaguchi @ [Rist Inc.](https://www.rist.co.jp/en/)
 
 # Summary
+Paper: [A Practical Two-Stage Recipe for Mathematical LLMs: Maximizing Accuracy with SFT and Efficiency with Reinforcement Learning](https://arxiv.org/abs/2507.08267) (Presented at ICML2025 AI for Math Workshop)
+
+
 By applying SFT and GRPO on difficult math problems, we enhanced the performance of `DeepSeek-R1-Distill-Qwen-14B` and developed `Fast-Math-R1-14B`, 
 which achieves up to 60% (on average approx. 30%) faster inference while maintaining accuracy.
 
