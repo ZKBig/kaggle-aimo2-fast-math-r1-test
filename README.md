@@ -187,7 +187,7 @@ Detailed report is available on [Kaggle Disucussion](https://www.kaggle.com/comp
 
 We merged all the datasets mentioned above, removed duplicates, and selected the correct generation with the shortest token length. For samples in the Light-R1 dataset where ground truth answers were not provided, we extracted and substituted the answers from the R1 traces. As a result, we constructed a **high-difficulty dataset consisting of 7900 problem - R1 trace - answer sets**.
 
-[Our first stage SFT dataset](RabotniKuma/Fast-Math-R1-SFT)
+[Our first stage SFT dataset](https://huggingface.co/datasets/RabotniKuma/Fast-Math-R1-SFT)
 
 ### Training
 A full-parameter supervised fine-tuning training was conducted on a machine with 8 H200 GPUs, using the SFTTrainer from the trl library.
