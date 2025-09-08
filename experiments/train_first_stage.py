@@ -21,9 +21,9 @@ class CFG:
     DATASET_NUM_PROC = 16
     BATCH_SIZE = 1
     GRAD_ACCUM = 8
-    PACKING = True
-    EVAL_PACKING = True
-    MAX_SEQ_LENGTH = 24000
+    PACKING = False
+    EVAL_PACKING = False
+    MAX_SEQ_LENGTH = 16000
     GRAD_CHECKPOINT = True
     NUM_TRAIN_EPOCHS = 20
     SAVE_STEPS = 50
@@ -34,8 +34,8 @@ class CFG:
     USE_PEFT = False
     USE_QLORA = False
     LORA_MODULES = ['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj']
-    LORA_R = 32
-    LORA_ALPHA = 32
+    LORA_R = 16
+    LORA_ALPHA = 16
     LORA_DROPOUT = 0.05
 
 
